@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestScanPath_givenSomeFiles(t *testing.T) {
+func TestScanPath_givenSomeFilesAndDirAtRoot(t *testing.T) {
 	path, _ := ioutil.TempDir("", "test-playlistcreator")
 	defer os.RemoveAll(path)
 	ioutil.WriteFile(filepath.Join(path, "1.txt"), nil, 0666)
@@ -27,6 +27,7 @@ func TestScanPath_givenSomeFiles(t *testing.T) {
 			{path: filepath.Join(path, "subDir1")},
 			{path: filepath.Join(path, "subDir2")},
 		},
+		containsMusic: true,
 	}, dir)
 }
 
@@ -52,13 +53,16 @@ func TestScanPath_scansRecursively(t *testing.T) {
 				path: subDir,
 				dirs: []Dir{
 					{
-						path:  subSubDir,
-						files: []File{{"subSubFile.mp3"}},
+						path:          subSubDir,
+						files:         []File{{"subSubFile.mp3"}},
+						containsMusic: true,
 					},
 				},
-				files: []File{{"subFile.mp3"}},
+				files:         []File{{"subFile.mp3"}},
+				containsMusic: true,
 			},
 		},
+		containsMusic: true,
 	}, dir)
 }
 
@@ -74,6 +78,7 @@ func TestScanPath_givenEmptyDir(t *testing.T) {
 	require.NoError(t, err)
 	require.Empty(t, dir.Files())
 	require.Empty(t, dir.Dirs())
+	require.False(t, dir.ContainsMusic())
 }
 
 func TestScanPath_givenNonExistingDir(t *testing.T) {
@@ -85,61 +90,46 @@ func TestScanPath_givenNonExistingDir(t *testing.T) {
 }
 
 func TestDir_ContainsMusic_givenMp3(t *testing.T) {
-	folder := Dir{"album", []File{{"foo.mp3"}}, []Dir{}}
+	path, _ := ioutil.TempDir("", "test-playlistcreator")
+	defer os.RemoveAll(path)
+	ioutil.WriteFile(filepath.Join(path, "song.mp3"), nil, 0666)
 
-	require.True(t, folder.ContainsMusic())
+	dir, _ := ScanPath(path)
+
+	require.True(t, dir.ContainsMusic())
 }
 
 func TestDir_ContainsMusic_givenNoMusicFile(t *testing.T) {
-	folder := Dir{"album", []File{{"readme.txt"}}, []Dir{}}
+	path, _ := ioutil.TempDir("", "test-playlistcreator")
+	defer os.RemoveAll(path)
+	ioutil.WriteFile(filepath.Join(path, "readme.md"), nil, 0666)
+	os.Mkdir(filepath.Join(path, "subDir"), 0777)
 
-	require.False(t, folder.ContainsMusic())
+	dir, _ := ScanPath(path)
+
+	require.False(t, dir.ContainsMusic())
 }
 
-func TestDir_ContainsMusic_givenSubDirectory(t *testing.T) {
-	folder := Dir{"album", []File{{"readme.txt"}}, []Dir{{path: "sub"}}}
+func TestDir_ContainsPlaylist_givenAPlaylist(t *testing.T) {
+	path, _ := ioutil.TempDir("", "test-playlistcreator")
+	defer os.RemoveAll(path)
+	playlist := filepath.Join(path, "playlist.m3u")
+	ioutil.WriteFile(playlist, nil, 0666)
 
-	require.False(t, folder.ContainsMusic())
+	dir, _ := ScanPath(path)
+
+	require.True(t, dir.Playlist().Exist)
+	require.Equal(t, playlist, dir.Playlist().Path)
 }
 
-func TestDir_ContainsMusic_givenEmptyDir(t *testing.T) {
-	folder := Dir{"album", []File{}, []Dir{}}
+func TestDir_ContainsPlaylist_givenNoPlaylist(t *testing.T) {
+	path, _ := ioutil.TempDir("", "test-playlistcreator")
+	defer os.RemoveAll(path)
+	ioutil.WriteFile(filepath.Join(path, "song.mp3"), nil, 0666)
+	os.Mkdir(filepath.Join(path, "subDir"), 0777)
 
-	require.False(t, folder.ContainsMusic())
-}
+	dir, _ := ScanPath(path)
 
-func TestDir_ContainsPlaylist_givenM3u(t *testing.T) {
-	folder := Dir{"album", []File{{"a playlist.m3u"}}, []Dir{}}
-
-	contains, playlist := folder.ContainsPlaylist()
-
-	require.True(t, contains)
-	require.Equal(t, File{"a playlist.m3u"}, playlist)
-}
-
-func TestDir_ContainsPlaylist_givenMusicButNoPlaylist(t *testing.T) {
-	folder := Dir{"album", []File{{"foo.mp3"}, {"bar.mp3"}}, []Dir{}}
-
-	contains, playlist := folder.ContainsPlaylist()
-
-	require.False(t, contains)
-	require.Zero(t, playlist)
-}
-
-func TestDir_ContainsPlaylist_givenSubDirectory(t *testing.T) {
-	folder := Dir{"album", []File{}, []Dir{{path: "sub"}}}
-
-	contains, playlist := folder.ContainsPlaylist()
-
-	require.False(t, contains)
-	require.Zero(t, playlist)
-}
-
-func TestDir_ContainsPlaylist_givenEmptyDir(t *testing.T) {
-	folder := Dir{"album", []File{}, []Dir{}}
-
-	contains, playlist := folder.ContainsPlaylist()
-
-	require.False(t, contains)
-	require.Zero(t, playlist)
+	require.False(t, dir.Playlist().Exist)
+	require.Empty(t, dir.Playlist().Path)
 }

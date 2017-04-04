@@ -39,7 +39,7 @@ func TestCreate_doesNotCreate_givenExistingPlaylist(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Equal(t, AlreadyExisting, result.Status)
-	require.Equal(t, "aPlaylist.pls", result.Playlist)
+	require.Equal(t, filepath.Join(folder.Path(), "aPlaylist.pls"), result.PlaylistPath)
 }
 
 func createDirWithFiles(t *testing.T, filenames ...string) dir.Dir {
@@ -64,7 +64,7 @@ func createDirWithFiles(t *testing.T, filenames ...string) dir.Dir {
 }
 
 func requireContent(t *testing.T, expectedContent string, actualResult CreationResult) {
-	actualContent, err := ioutil.ReadFile(actualResult.Playlist)
+	actualContent, err := ioutil.ReadFile(actualResult.PlaylistPath)
 	if err != nil {
 		t.Fatal(err)
 	}
