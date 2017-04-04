@@ -10,14 +10,14 @@ import (
 type Playlist struct{}
 
 type CreationResult struct {
-	Status   CreationCode
+	Status   code
 	Playlist string
 }
 
-type CreationCode int
+type code int
 
 const (
-	Created CreationCode = iota
+	Created code = iota
 	AlreadyExisting
 )
 
