@@ -37,11 +37,11 @@ func (d Dir) ContainsMusic() bool {
 	return false
 }
 
-func (d Dir) ContainsPlaylist() bool {
+func (d Dir) ContainsPlaylist() (bool, File) {
 	for _, file := range d.Files {
 		if file.IsPlaylist() {
-			return true
+			return true, file
 		}
 	}
-	return false
+	return false, File{}
 }

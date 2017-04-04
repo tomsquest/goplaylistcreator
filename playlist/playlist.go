@@ -10,8 +10,8 @@ import (
 type Playlist struct{}
 
 type CreationResult struct {
-	Status       CreationCode
-	PlaylistPath string
+	Status   CreationCode
+	Playlist string
 }
 
 type CreationCode int
@@ -22,9 +22,11 @@ const (
 )
 
 func Create(dir dir.Dir) (CreationResult, error) {
-	if dir.ContainsPlaylist() {
+	containsPlaylist, file := dir.ContainsPlaylist()
+	if containsPlaylist {
 		return CreationResult{
-			Status: AlreadyExisting,
+			Status:   AlreadyExisting,
+			Playlist: file.Name,
 		}, nil
 	}
 
@@ -42,8 +44,8 @@ func Create(dir dir.Dir) (CreationResult, error) {
 	}
 
 	result := CreationResult{
-		Status:       Created,
-		PlaylistPath: path,
+		Status:   Created,
+		Playlist: path,
 	}
 
 	return result, nil

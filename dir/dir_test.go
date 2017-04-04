@@ -80,17 +80,26 @@ func TestDir_ContainsMusic_givenEmptyDir(t *testing.T) {
 func TestDir_ContainsPlaylist_givenM3u(t *testing.T) {
 	folder := Dir{"album", []File{{"a playlist.m3u"}}}
 
-	require.True(t, folder.ContainsPlaylist())
+	contains, file := folder.ContainsPlaylist()
+
+	require.True(t, contains)
+	require.Equal(t, File{"a playlist.m3u"}, file)
 }
 
 func TestDir_ContainsPlaylist_givenMusicButNoPlaylist(t *testing.T) {
 	folder := Dir{"album", []File{{"foo.mp3"}, {"bar.mp3"}}}
 
-	require.False(t, folder.ContainsPlaylist())
+	contains, file := folder.ContainsPlaylist()
+
+	require.False(t, contains)
+	require.Zero(t, file)
 }
 
 func TestDir_ContainsPlaylist_givenEmptyDir(t *testing.T) {
 	folder := Dir{"album", []File{}}
 
-	require.False(t, folder.ContainsPlaylist())
+	contains, file := folder.ContainsPlaylist()
+
+	require.False(t, contains)
+	require.Zero(t, file)
 }

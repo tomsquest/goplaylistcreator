@@ -30,8 +30,8 @@ func main() {
 		log.Fatal(err)
 	}
 	if result.Status == playlist.Created {
-		log.Printf("Playlist created: %s\n", result.PlaylistPath)
+		log.Printf("Playlist created: %s\n", result.Playlist)
 	} else if result.Status == playlist.AlreadyExisting {
-		log.Printf("Already existing playlist: %s\n", result.PlaylistPath)
+		log.Printf("Already existing playlist: %s\n", result.Playlist)
 	}
 }
