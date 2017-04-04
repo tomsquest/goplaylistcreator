@@ -30,28 +30,6 @@ func TestScanPath_givenSomeFiles(t *testing.T) {
 	}, dir)
 }
 
-func TestScanPath_givenEmptyDir(t *testing.T) {
-	path, err := ioutil.TempDir("", "test-playlistcreator")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer os.RemoveAll(path)
-
-	dir, err := ScanPath(path)
-
-	require.NoError(t, err)
-	require.Empty(t, dir.Files())
-	require.Empty(t, dir.Dirs())
-}
-
-func TestScanPath_givenNonExistingDir(t *testing.T) {
-	path := "unknown-dir"
-
-	_, err := ScanPath(path)
-
-	require.Error(t, err)
-}
-
 func TestScanPath_scansRecursively(t *testing.T) {
 	path, _ := ioutil.TempDir("", "test-playlistcreator")
 	defer os.RemoveAll(path)
@@ -82,7 +60,28 @@ func TestScanPath_scansRecursively(t *testing.T) {
 			},
 		},
 	}, dir)
+}
 
+func TestScanPath_givenEmptyDir(t *testing.T) {
+	path, err := ioutil.TempDir("", "test-playlistcreator")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer os.RemoveAll(path)
+
+	dir, err := ScanPath(path)
+
+	require.NoError(t, err)
+	require.Empty(t, dir.Files())
+	require.Empty(t, dir.Dirs())
+}
+
+func TestScanPath_givenNonExistingDir(t *testing.T) {
+	path := "unknown-dir"
+
+	_, err := ScanPath(path)
+
+	require.Error(t, err)
 }
 
 func TestDir_ContainsMusic_givenMp3(t *testing.T) {
