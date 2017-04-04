@@ -10,22 +10,22 @@ import (
 
 func main() {
 	flag.Parse()
-	folderPath := flag.Arg(0)
+	rootPath := flag.Arg(0)
 
-	if folderPath == "" {
-		log.Fatal("Missing target folder as first argument")
+	if rootPath == "" {
+		log.Fatal("Missing root folder as first argument")
 	}
 
-	folder, err := dir.ScanPath(folderPath)
+	root, err := dir.ScanPath(rootPath)
 	if err != nil {
 		if _, ok := err.(*os.PathError); ok {
-			log.Fatalf("Folder not found: \"%s\"\n", folderPath)
+			log.Fatalf("Folder not found: \"%s\"\n", rootPath)
 		} else {
-			log.Fatalf("Unable to scan folder: \"%s\". Reason: %s", folderPath, err)
+			log.Fatalf("Unable to scan folder: \"%s\". Reason: %s", rootPath, err)
 		}
 	}
 
-	result, err := playlist.Create(folder)
+	result, err := playlist.Create(root)
 	if err != nil {
 		log.Fatal(err)
 	}
