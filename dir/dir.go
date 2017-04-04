@@ -2,6 +2,7 @@ package dir
 
 import (
 	"io/ioutil"
+	"log"
 	"path/filepath"
 )
 
@@ -23,9 +24,13 @@ func ScanPath(path string) (Dir, error) {
 
 	for _, info := range fileInfos {
 		if info.IsDir() {
-			subDirPath := filepath.Join(path, info.Name())
-			subDir := Dir{Path: subDirPath}
-			dir.Dirs = append(dir.Dirs, subDir)
+			subPath := filepath.Join(path, info.Name())
+			subDir, err := ScanPath(subPath)
+			if err != nil {
+				log.Printf("Skipping folder: %s. Reason: %s", subPath, err)
+			} else {
+				dir.Dirs = append(dir.Dirs, subDir)
+			}
 		} else {
 			dir.Files = append(dir.Files, File{info.Name()})
 		}

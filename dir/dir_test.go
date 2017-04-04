@@ -10,15 +10,12 @@ import (
 )
 
 func TestScanPath_givenSomeFiles(t *testing.T) {
-	path, err := ioutil.TempDir("", "test-playlistcreator")
-	if err != nil {
-		log.Fatal(err)
-	}
+	path, _ := ioutil.TempDir("", "test-playlistcreator")
 	defer os.RemoveAll(path)
 	ioutil.WriteFile(filepath.Join(path, "1.txt"), nil, 0666)
 	ioutil.WriteFile(filepath.Join(path, "2.mp3"), nil, 0666)
-	os.Mkdir(filepath.Join(path, "subDir1"), 777)
-	os.Mkdir(filepath.Join(path, "subDir2"), 777)
+	os.Mkdir(filepath.Join(path, "subDir1"), 0777)
+	os.Mkdir(filepath.Join(path, "subDir2"), 0777)
 
 	dir, err := ScanPath(path)
 
@@ -53,6 +50,39 @@ func TestScanPath_givenNonExistingDir(t *testing.T) {
 	_, err := ScanPath(path)
 
 	require.Error(t, err)
+}
+
+func TestScanPath_scansRecursively(t *testing.T) {
+	path, _ := ioutil.TempDir("", "test-playlistcreator")
+	defer os.RemoveAll(path)
+	subDir := filepath.Join(path, "subDir")
+	os.Mkdir(subDir, 0777)
+	subSubDir := filepath.Join(subDir, "subSubDir")
+	os.Mkdir(subSubDir, 0777)
+	ioutil.WriteFile(filepath.Join(path, "file.mp3"), nil, 0666)
+	ioutil.WriteFile(filepath.Join(subDir, "subFile.mp3"), nil, 0666)
+	ioutil.WriteFile(filepath.Join(subSubDir, "subSubFile.mp3"), nil, 0666)
+
+	dir, err := ScanPath(path)
+
+	require.NoError(t, err)
+	require.Equal(t, Dir{
+		Path:  path,
+		Files: []File{{"file.mp3"}},
+		Dirs: []Dir{
+			{
+				Path: subDir,
+				Dirs: []Dir{
+					{
+						Path:  subSubDir,
+						Files: []File{{"subSubFile.mp3"}},
+					},
+				},
+				Files: []File{{"subFile.mp3"}},
+			},
+		},
+	}, dir)
+
 }
 
 func TestDir_ContainsMusic_givenMp3(t *testing.T) {
