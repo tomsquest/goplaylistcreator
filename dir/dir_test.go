@@ -21,11 +21,11 @@ func TestScanPath_givenSomeFiles(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Equal(t, Dir{
-		Path:  path,
-		Files: []File{{"1.txt"}, {"2.mp3"}},
-		Dirs: []Dir{
-			{Path: filepath.Join(path, "subDir1")},
-			{Path: filepath.Join(path, "subDir2")},
+		path:  path,
+		files: []File{{"1.txt"}, {"2.mp3"}},
+		dirs: []Dir{
+			{path: filepath.Join(path, "subDir1")},
+			{path: filepath.Join(path, "subDir2")},
 		},
 	}, dir)
 }
@@ -40,8 +40,8 @@ func TestScanPath_givenEmptyDir(t *testing.T) {
 	dir, err := ScanPath(path)
 
 	require.NoError(t, err)
-	require.Empty(t, dir.Files)
-	require.Empty(t, dir.Dirs)
+	require.Empty(t, dir.Files())
+	require.Empty(t, dir.Dirs())
 }
 
 func TestScanPath_givenNonExistingDir(t *testing.T) {
@@ -67,18 +67,18 @@ func TestScanPath_scansRecursively(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Equal(t, Dir{
-		Path:  path,
-		Files: []File{{"file.mp3"}},
-		Dirs: []Dir{
+		path:  path,
+		files: []File{{"file.mp3"}},
+		dirs: []Dir{
 			{
-				Path: subDir,
-				Dirs: []Dir{
+				path: subDir,
+				dirs: []Dir{
 					{
-						Path:  subSubDir,
-						Files: []File{{"subSubFile.mp3"}},
+						path:  subSubDir,
+						files: []File{{"subSubFile.mp3"}},
 					},
 				},
-				Files: []File{{"subFile.mp3"}},
+				files: []File{{"subFile.mp3"}},
 			},
 		},
 	}, dir)
@@ -98,7 +98,7 @@ func TestDir_ContainsMusic_givenNoMusicFile(t *testing.T) {
 }
 
 func TestDir_ContainsMusic_givenSubDirectory(t *testing.T) {
-	folder := Dir{"album", []File{{"readme.txt"}}, []Dir{{Path: "sub"}}}
+	folder := Dir{"album", []File{{"readme.txt"}}, []Dir{{path: "sub"}}}
 
 	require.False(t, folder.ContainsMusic())
 }
@@ -128,7 +128,7 @@ func TestDir_ContainsPlaylist_givenMusicButNoPlaylist(t *testing.T) {
 }
 
 func TestDir_ContainsPlaylist_givenSubDirectory(t *testing.T) {
-	folder := Dir{"album", []File{}, []Dir{{Path: "sub"}}}
+	folder := Dir{"album", []File{}, []Dir{{path: "sub"}}}
 
 	contains, playlist := folder.ContainsPlaylist()
 

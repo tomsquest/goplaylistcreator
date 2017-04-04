@@ -7,9 +7,9 @@ import (
 )
 
 type Dir struct {
-	Path  string
-	Files []File
-	Dirs  []Dir
+	path  string
+	files []File
+	dirs  []Dir
 }
 
 func ScanPath(path string) (Dir, error) {
@@ -19,7 +19,7 @@ func ScanPath(path string) (Dir, error) {
 	}
 
 	dir := Dir{
-		Path: path,
+		path: path,
 	}
 
 	for _, info := range fileInfos {
@@ -29,18 +29,30 @@ func ScanPath(path string) (Dir, error) {
 			if err != nil {
 				log.Printf("Skipping folder: %s. Reason: %s", subPath, err)
 			} else {
-				dir.Dirs = append(dir.Dirs, subDir)
+				dir.dirs = append(dir.dirs, subDir)
 			}
 		} else {
-			dir.Files = append(dir.Files, File{info.Name()})
+			dir.files = append(dir.files, File{info.Name()})
 		}
 	}
 
 	return dir, nil
 }
 
-func (d Dir) ContainsMusic() bool {
-	for _, file := range d.Files {
+func (d *Dir) Path() string {
+	return d.path
+}
+
+func (d *Dir) Files() []File {
+	return d.files
+}
+
+func (d *Dir) Dirs() []Dir {
+	return d.dirs
+}
+
+func (d *Dir) ContainsMusic() bool {
+	for _, file := range d.Files() {
 		if file.IsMusic() {
 			return true
 		}
@@ -48,8 +60,8 @@ func (d Dir) ContainsMusic() bool {
 	return false
 }
 
-func (d Dir) ContainsPlaylist() (bool, File) {
-	for _, file := range d.Files {
+func (d *Dir) ContainsPlaylist() (bool, File) {
+	for _, file := range d.Files() {
 		if file.IsPlaylist() {
 			return true, file
 		}

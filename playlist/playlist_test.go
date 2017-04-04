@@ -11,7 +11,7 @@ import (
 
 func TestPlaylist_Create(t *testing.T) {
 	folder := createDirWithFiles(t, "1.mp3", "2.mp3")
-	defer os.RemoveAll(folder.Path)
+	defer os.RemoveAll(folder.Path())
 
 	result, err := Create(folder)
 
@@ -22,7 +22,7 @@ func TestPlaylist_Create(t *testing.T) {
 
 func TestCreate_ignoresNonMusicFiles(t *testing.T) {
 	folder := createDirWithFiles(t, "readme.txt", "1.mp3")
-	defer os.RemoveAll(folder.Path)
+	defer os.RemoveAll(folder.Path())
 
 	result, err := Create(folder)
 
@@ -33,7 +33,7 @@ func TestCreate_ignoresNonMusicFiles(t *testing.T) {
 
 func TestCreate_doesNotCreate_givenExistingPlaylist(t *testing.T) {
 	folder := createDirWithFiles(t, "aPlaylist.pls", "1.mp3")
-	defer os.RemoveAll(folder.Path)
+	defer os.RemoveAll(folder.Path())
 
 	result, err := Create(folder)
 
