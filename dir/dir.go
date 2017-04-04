@@ -2,11 +2,13 @@ package dir
 
 import (
 	"io/ioutil"
+	"path/filepath"
 )
 
 type Dir struct {
 	Path  string
 	Files []File
+	Dirs  []Dir
 }
 
 func ScanPath(path string) (Dir, error) {
@@ -20,7 +22,11 @@ func ScanPath(path string) (Dir, error) {
 	}
 
 	for _, info := range fileInfos {
-		if !info.IsDir() {
+		if info.IsDir() {
+			subDirPath := filepath.Join(path, info.Name())
+			subDir := Dir{Path: subDirPath}
+			dir.Dirs = append(dir.Dirs, subDir)
+		} else {
 			dir.Files = append(dir.Files, File{info.Name()})
 		}
 	}
