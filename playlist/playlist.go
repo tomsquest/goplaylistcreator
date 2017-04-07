@@ -19,6 +19,7 @@ type code int
 const (
 	Created code = iota
 	AlreadyExisting
+	NoMusicFiles
 )
 
 func Create(dir dir.Dir) (CreationResult, error) {
@@ -27,6 +28,12 @@ func Create(dir dir.Dir) (CreationResult, error) {
 		return CreationResult{
 			Status:       AlreadyExisting,
 			PlaylistPath: previousPlaylist.Path,
+		}, nil
+	}
+
+	if !dir.ContainsMusic() {
+		return CreationResult{
+			Status: NoMusicFiles,
 		}, nil
 	}
 

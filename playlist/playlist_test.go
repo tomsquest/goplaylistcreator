@@ -31,6 +31,17 @@ func TestCreate_ignoresNonMusicFiles(t *testing.T) {
 	requireContent(t, "1.mp3\n", result)
 }
 
+func TestCreate_doesNotCreate_givenNoMusicFiles(t *testing.T) {
+	folder := createDirWithFiles(t, "readme.txt", "cover.jpg")
+	defer os.RemoveAll(folder.Path())
+
+	result, err := Create(folder)
+
+	require.NoError(t, err)
+	require.Equal(t, NoMusicFiles, result.Status)
+	require.Empty(t, result.PlaylistPath)
+}
+
 func TestCreate_doesNotCreate_givenExistingPlaylist(t *testing.T) {
 	folder := createDirWithFiles(t, "aPlaylist.pls", "1.mp3")
 	defer os.RemoveAll(folder.Path())
