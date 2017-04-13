@@ -25,13 +25,5 @@ func main() {
 		}
 	}
 
-	result, err := playlist.Create(root)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if result.Status == playlist.Created {
-		log.Printf("Playlist created: %s\n", result.PlaylistPath)
-	} else if result.Status == playlist.AlreadyExisting {
-		log.Printf("Already existing playlist: %s\n", result.PlaylistPath)
-	}
+	playlist.CreateAll(root)
 }
