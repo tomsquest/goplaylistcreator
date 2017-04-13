@@ -15,12 +15,12 @@ func TestCreateInAllDirs(t *testing.T) {
 
 	// Directories with music
 	levelA := filepath.Join(rootPath, "levelA")
-	levelB := filepath.Join(rootPath, "levelA", "levelB1")
-	levelC := filepath.Join(rootPath, "levelA", "levelB1", "levelC")
-	os.MkdirAll(levelC, 0770)
+	levelB1 := filepath.Join(rootPath, "levelA", "levelB1")
+	levelB1C := filepath.Join(rootPath, "levelA", "levelB1", "levelC")
+	os.MkdirAll(levelB1C, 0770)
 	ioutil.WriteFile(filepath.Join(levelA, "levelA.mp3"), []byte{}, 0666)
-	ioutil.WriteFile(filepath.Join(levelB, "levelB.mp3"), []byte{}, 0666)
-	ioutil.WriteFile(filepath.Join(levelC, "levelC.mp3"), []byte{}, 0666)
+	ioutil.WriteFile(filepath.Join(levelB1, "levelB.mp3"), []byte{}, 0666)
+	ioutil.WriteFile(filepath.Join(levelB1C, "levelC.mp3"), []byte{}, 0666)
 	// Empty directories
 	levelB2 := filepath.Join(rootPath, "levelA", "levelB2")
 	levelC2 := filepath.Join(rootPath, "levelA", "levelB2", "levelC2")
@@ -34,20 +34,27 @@ func TestCreateInAllDirs(t *testing.T) {
 
 	CreateAll(root)
 
-	requirePlaylistExist(t, levelA)
-	requirePlaylistExist(t, levelB)
-	requirePlaylistExist(t, levelC)
+	requirePlaylistExist(t, levelA, "levelA.m3u")
+	requirePlaylistExist(t, levelB1, "levelB1.m3u")
+	requirePlaylistExist(t, levelB1C, "levelC.m3u")
 	requireNoPlaylist(t, levelB2)
 	requireNoPlaylist(t, levelC2)
 }
 
-func requirePlaylistExist(t *testing.T, path string) {
-	info, err := os.Stat(filepath.Join(path, "playlist.m3u"))
+func requirePlaylistExist(t *testing.T, playlistDir string, expectedPlaylistName string) {
+	info, err := os.Stat(filepath.Join(playlistDir, expectedPlaylistName))
 	require.NoError(t, err)
 	require.False(t, info.IsDir())
 }
 
 func requireNoPlaylist(t *testing.T, path string) {
-	_, err := os.Stat(filepath.Join(path, "playlist.m3u"))
-	require.Error(t, err)
+	files, err := ioutil.ReadDir(path)
+	require.NoError(t, err)
+
+	for _, file := range files {
+		if filepath.Ext(file.Name()) == ".m3u" {
+			require.Fail(t, "Unexpected playlist found", file.Name())
+		}
+	}
+	//_, err := os.Stat(filepath.Join(path, "playlist.m3u"))
 }

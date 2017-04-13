@@ -37,7 +37,7 @@ func Create(dir dir.Dir) (CreationResult, error) {
 		}, nil
 	}
 
-	path := filepath.Join(dir.Path(), "playlist.m3u")
+	path := filepath.Join(dir.Path(), filepath.Base(dir.Path())+".m3u")
 	playlist, err := os.Create(path)
 	if err != nil {
 		return CreationResult{}, errors.Errorf("Unable to create playlist: %s. Reason: %s\n", path, err)
