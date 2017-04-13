@@ -11,7 +11,7 @@ type File struct {
 
 func (file File) IsMusic() bool {
 	switch strings.ToLower(filepath.Ext(file.Name)) {
-	case ".mp3", ".mp4a", ".ogg":
+	case ".mp3", ".m4a", ".ogg":
 		return true
 	}
 	return false
